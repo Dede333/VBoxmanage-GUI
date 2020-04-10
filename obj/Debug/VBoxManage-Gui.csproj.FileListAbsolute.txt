@@ -1,0 +1,11 @@
+C:\Users\dupon\source\repos\VBoxManage-Gui\bin\Debug\VBoxManage-Gui.exe.config
+C:\Users\dupon\source\repos\VBoxManage-Gui\bin\Debug\VBoxManage-Gui.exe
+C:\Users\dupon\source\repos\VBoxManage-Gui\bin\Debug\VBoxManage-Gui.pdb
+C:\Users\dupon\source\repos\VBoxManage-Gui\obj\Debug\VBoxManage_Gui.Properties.Resources.resources
+C:\Users\dupon\source\repos\VBoxManage-Gui\obj\Debug\VBoxManage-Gui.csproj.GenerateResource.cache
+C:\Users\dupon\source\repos\VBoxManage-Gui\obj\Debug\VBoxManage-Gui.csproj.CoreCompileInputs.cache
+C:\Users\dupon\source\repos\VBoxManage-Gui\obj\Debug\VBoxManage-Gui.exe
+C:\Users\dupon\source\repos\VBoxManage-Gui\obj\Debug\VBoxManage-Gui.pdb
+C:\Users\dupon\source\repos\VBoxManage-Gui\obj\Debug\VBoxManage_Gui.FormMain.resources
+C:\Users\dupon\source\repos\VBoxManage-Gui\obj\Debug\VBoxManage_Gui.FormProgress.resources
+C:\Users\dupon\source\repos\VBoxManage-Gui\obj\Debug\VBoxManage-Gui.csprojAssemblyReference.cache
