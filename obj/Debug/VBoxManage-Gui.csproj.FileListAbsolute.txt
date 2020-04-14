@@ -8,4 +8,3 @@ C:\Users\dupon\source\repos\VBoxManage-Gui\obj\Debug\VBoxManage-Gui.exe
 C:\Users\dupon\source\repos\VBoxManage-Gui\obj\Debug\VBoxManage-Gui.pdb
 C:\Users\dupon\source\repos\VBoxManage-Gui\obj\Debug\VBoxManage_Gui.FormMain.resources
 C:\Users\dupon\source\repos\VBoxManage-Gui\obj\Debug\VBoxManage_Gui.FormProgress.resources
-C:\Users\dupon\source\repos\VBoxManage-Gui\obj\Debug\VBoxManage-Gui.csprojAssemblyReference.cache
