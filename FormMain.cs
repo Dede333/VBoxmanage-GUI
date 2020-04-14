@@ -33,8 +33,8 @@ namespace VBoxManage_Gui
         //
         private void backgroundWorkerVboxManageCommand_DoWork(object sender, DoWorkEventArgs e)
         {
-            String StrArguments = e.Argument.ToString();
-            StrVBoxManageExitCode = "";
+            String StrArguments = e.Argument.ToString();  // récupère les arguments passés à la fonction
+            StrVBoxManageExitCode = "";                   // pour le code de retour de la fonction
             Process VBoxManage = new Process();
             VBoxManage.StartInfo.RedirectStandardOutput = true; // redirection sortie standard
             VBoxManage.StartInfo.RedirectStandardError = true;  // idem pour la sortie erreurs
@@ -47,7 +47,7 @@ namespace VBoxManage_Gui
             StrOutput = StrOutput + VBoxManage.StandardOutput.ReadToEnd(); // affiche tous les caractères jusqu'a fin de commande
             VBoxManage.WaitForExit();                           // Attends la fin d'éxécution
             StrVBoxManageExitCode = VBoxManage.ExitCode.ToString();  // code de retour de la fonction
-            TxtBox_OutputConsole.Text = StrOutput;              // mise à jour du résultat de la commande
+            TxtBox_OutputConsole.Text = TxtBox_OutputConsole.Text + StrOutput;              // mise à jour du résultat de la commande
         }
 
         // Permet d'afficher toutes les machine(s) virtuelle(s) présentes dans l'environnement
@@ -153,9 +153,16 @@ namespace VBoxManage_Gui
         private void Btn_StartVM_Click(object sender, EventArgs e)
         {
             TxtBox_OutputConsole.Text = "";
-            StrVBoxManageArguments = "startvm " + "\"" + TxtBox_StartVmName.Text + "\"";  // démarre la vm spécifiée
-            backgroundWorkerVboxManageCommand.RunWorkerAsync(StrVBoxManageArguments);
-            MaFormeProgress.ShowDialog();         // affiche la forme MaFormeProgress pour patienter
+            if (TxtBox_StartVmName.Text != "")
+            {
+                StrVBoxManageArguments = "startvm " + "\"" + TxtBox_StartVmName.Text + "\"";  // démarre la vm spécifiée
+                if (ChkBox_StartVmType.Checked == true)
+                    StrVBoxManageArguments = StrVBoxManageArguments + " --type " + CmbBox_StartVmType.SelectedItem.ToString();
+                //MessageBox.Show(StrVBoxManageArguments);
+                backgroundWorkerVboxManageCommand.RunWorkerAsync(StrVBoxManageArguments);
+                MaFormeProgress.ShowDialog();         // affiche la forme MaFormeProgress pour patienter
+            }
+            
         }
 
         // Permet de créer une machine virtuelle
@@ -181,6 +188,179 @@ namespace VBoxManage_Gui
 
             // MessageBox.Show(StrVBoxManageArguments);  // afin de vérifier la commande
 
+            backgroundWorkerVboxManageCommand.RunWorkerAsync(StrVBoxManageArguments);
+            MaFormeProgress.ShowDialog();         // affiche la forme MaFormeProgress pour patienter
+        }
+
+        // Permet de modifier la variable StrPathToVBoxManage par défaut
+        // Dans le cas ou il y aurait des changements...
+        // Le chemin par défaut est : C:\Program Files\Oracle\VirtualBox\
+        // L'utilisateur peut ainsi le modifier éventuellement
+        // Révision 12/04/2020
+        //
+        private void Btn_FixePathToVBoxManage_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog Dossier = new FolderBrowserDialog();
+            if (Dossier.ShowDialog() == DialogResult.OK)
+            {
+                StrPathToVBoxManage = Dossier.SelectedPath + "\\";  // mémorise le chemin
+                TxtBox_StrPathToVBoxManage.Text = StrPathToVBoxManage; // mise à jour contrôle associé
+            }
+                
+        }
+        // Permet de sélectionner un fichier vbox à enregistrer dans l'environnement virtualbox
+        // Révision: 12/04/2020
+        // 
+        private void Btn_RegisterVmChoixFichier_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog MonFileDialogue = new OpenFileDialog();
+            MonFileDialogue.InitialDirectory = "c:";  // répertoire c: par défaut
+            MonFileDialogue.Title = "Choisir un fichier d'extension vbox:";
+            MonFileDialogue.Filter = ("Fichier vbox (*.vbox) | *.vbox"); // extension de fichier vbox
+            if (MonFileDialogue.ShowDialog() == DialogResult.OK)
+            {
+                TxtBox_RegisterVmFilename.Text = MonFileDialogue.FileName; // Maj contrôle associé
+            }
+        }
+
+        // Permet d'enregistrer la machine virtuelle dans l'environnement VirtualBox
+        // le fichier VirtualBox.XML du dossier cacher .VirtualBox de l'utilisateur courant
+        // sera mis à jour
+        // Révision: 12/04/2020
+        //
+        private void Btn_RegisterVm_Click(object sender, EventArgs e)
+        {
+            TxtBox_OutputConsole.Text = "";
+            if (TxtBox_RegisterVmFilename.Text != "")
+            {
+                StrVBoxManageArguments = "registervm " + "\"" + TxtBox_RegisterVmFilename.Text + "\"";  // enregistre la vm
+                //MessageBox.Show(StrVBoxManageArguments);
+                backgroundWorkerVboxManageCommand.RunWorkerAsync(StrVBoxManageArguments);
+                MaFormeProgress.ShowDialog();         // affiche la forme MaFormeProgress pour patienter
+            }
+        }
+
+        // Permet de désenregistrer la machine virtuelle dans l'environnement VirtualBox
+        //  Attention: l'option --delete ne fonctionne que si la machine est bien enregistrée
+        // le fichier VirtualBox.XML du dossier cacher .VirtualBox de l'utilisateur courant
+        // sera mis à jour
+        // Révision: 12/04/2020
+        //
+        private void Btn_UnregisterVm_Click(object sender, EventArgs e)
+        {
+            TxtBox_OutputConsole.Text = "";
+            if (TxtBox_UnregisterVmUUIDorFilename.Text != "")
+            {
+                StrVBoxManageArguments = "unregistervm " + "\"" + TxtBox_UnregisterVmUUIDorFilename.Text + "\"";  // enregistre la vm
+                if (ChkBox_UnregisterVmDelete.Checked == true)
+                    StrVBoxManageArguments = StrVBoxManageArguments + " --delete";
+                //MessageBox.Show(StrVBoxManageArguments);
+                backgroundWorkerVboxManageCommand.RunWorkerAsync(StrVBoxManageArguments);
+                MaFormeProgress.ShowDialog();         // affiche la forme MaFormeProgress pour patienter
+            }
+        }
+
+        // Permet de choisir le dossier cible où la machine sera déplacée
+        // Révision: 12/04/2020
+        //
+        private void Btn_MoveVmChoixDossierCible_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog Dossier = new FolderBrowserDialog();
+            if (Dossier.ShowDialog() == DialogResult.OK)
+                TxtBox_MoveVmDossierCible.Text = Dossier.SelectedPath; // mise à jour contrôle associé
+        }
+
+        // permet de déplacer une machine virtuelle d'un dossier vers un autre
+        // le fichier VirtualBox.XML du dossier cacher .VirtualBox de l'utilisateur courant
+        // sera mis à jour
+        // Révision: 12/04/2020
+        //
+        private void Btn_DeplaceVm_Click(object sender, EventArgs e)
+        {
+            TxtBox_OutputConsole.Text = "";
+            if (TxtBox_MoveVmDossierCible.Text != "")
+            {
+                StrVBoxManageArguments = "movevm " + "\"" + TxtBox_MoveVmUUIDorName.Text + "\"" + " --folder ";
+                StrVBoxManageArguments = StrVBoxManageArguments + "\"" + TxtBox_MoveVmDossierCible.Text + "\"";
+                if (ChkBox_MoveVmType.Checked == true)
+                    StrVBoxManageArguments = StrVBoxManageArguments + " --type basic";
+                //MessageBox.Show(StrVBoxManageArguments);
+                backgroundWorkerVboxManageCommand.RunWorkerAsync(StrVBoxManageArguments);
+                MaFormeProgress.ShowDialog();         // affiche la forme MaFormeProgress pour patienter
+            }
+        }
+
+        // permet d'afficher les informations concernant un type de media
+        // Révision: 13/04/2020
+        //
+        private void Btn_ShowMediumInfo_Click(object sender, EventArgs e)
+        {
+            TxtBox_OutputConsole.Text = "";
+            if (CmbBox_ShowMediumInfoType.Text == "" || TxtBox_ShowMediumInfoUUIDorName.Text == "")
+            {
+                MessageBox.Show("Vous devez renseigner l'ensemble des champs avant de lancer la commande !");
+            }
+            else
+            {
+                StrVBoxManageArguments = "showmediuminfo " + CmbBox_ShowMediumInfoType.SelectedItem.ToString() + " ";
+                StrVBoxManageArguments = StrVBoxManageArguments + "\"" + TxtBox_ShowMediumInfoUUIDorName.Text + "\"";
+                //MessageBox.Show(StrVBoxManageArguments);
+                backgroundWorkerVboxManageCommand.RunWorkerAsync(StrVBoxManageArguments);
+                MaFormeProgress.ShowDialog();         // affiche la forme MaFormeProgress pour patienter
+            }
+        }
+
+        // Permet de sélectionne un nom de fichier média
+        // attention à la conception du filtre bien mettre le pipe '|' coller sans espace
+        // sinon le filtre ne fonctionnera pas correctement !!
+        // Révision: 12/04/2020
+        //
+        private void Btn_ShowMediumInfoChoix_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog MonFileDialogue = new OpenFileDialog();
+            MonFileDialogue.InitialDirectory = "c:";  // répertoire c: par défaut
+            MonFileDialogue.Title = "Choisir un fichier média:";
+            MonFileDialogue.Filter = ("Fichier (*.vdi)|*.vdi|Fichier (*.vmdk)|*.vmdk|Fichier (*.vhd)|*.vhd|Fichier (*.*)|*.*"); // extension de fichier vbox
+            if (MonFileDialogue.ShowDialog() == DialogResult.OK)
+            {
+                TxtBox_ShowMediumInfoUUIDorName.Text = MonFileDialogue.FileName; // Maj contrôle associé
+            }
+        }
+
+        // Permet de choisir le dossier qui va recevoir la nouvelle machine crée
+        // Révision: 13/04/2020
+        //
+
+        private void Btn_CreateVmDossierCible_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog Dossier = new FolderBrowserDialog();
+            if (Dossier.ShowDialog() == DialogResult.OK)
+                TxtBox_CreateVmDossierDest.Text = Dossier.SelectedPath; // mise à jour contrôle associé
+        }
+
+        // Permet de créer un média
+        // Révision: 13/04/2020
+        //
+        private void Btn_CreateMediumCreerMedia_Click(object sender, EventArgs e)
+        {
+            TxtBox_OutputConsole.Text = "";
+
+            StrVBoxManageArguments = "createmedium " + CmbBox_CreateMediumType.SelectedItem.ToString() + " ";
+            StrVBoxManageArguments = StrVBoxManageArguments + "--filename " + "\"" + TxtBox_CreateMediumNomFichier.Text + "\" ";
+            if (ChkBox_CreateMediumSizeMega.Checked == true)
+                StrVBoxManageArguments = StrVBoxManageArguments + "--size " + TxtBox_CreateMediumSizeMegaByte.Text + " ";
+            if (ChkBox_CreateMediumSizeByte.Checked == true)
+                StrVBoxManageArguments = StrVBoxManageArguments + "--sizebyte " + TxtBox_CreateMediumSizeByte.Text + " ";
+            if (ChkBox_CreateMediumDiffParent.Checked == true)
+                StrVBoxManageArguments = StrVBoxManageArguments + "--diffparent " + TxtBox_CreateMediumUUIDorFileName.Text + " ";
+            if (ChkBox_CreateMediumFormat.Checked == true)
+                StrVBoxManageArguments = StrVBoxManageArguments + "--format " + CmbBox_CreateMediumFormat.SelectedItem.ToString() + " ";
+            if (ChkBox_CreateMediumVariant.Checked == true)
+                StrVBoxManageArguments = StrVBoxManageArguments + "--variant " + CmbBox_CreateMediumVariant.SelectedItem.ToString() + " ";
+            if (ChkBox_CreateMediumProperty.Checked == true)
+                StrVBoxManageArguments = StrVBoxManageArguments + "--property " + TxtBox_CreateMediumProperty.Text;
+
+            //MessageBox.Show(StrVBoxManageArguments);
             backgroundWorkerVboxManageCommand.RunWorkerAsync(StrVBoxManageArguments);
             MaFormeProgress.ShowDialog();         // affiche la forme MaFormeProgress pour patienter
         }
